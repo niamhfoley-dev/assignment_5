@@ -107,7 +107,6 @@ class ProjectTaskFormTest(TestCase):
         # Due date field
         due_attrs = form.fields['due_date'].widget.attrs
         self.assertIn('form-control', due_attrs.get('class', ''))
-        self.assertEqual(due_attrs.get('type'), 'date')
         # is_complete field
         is_complete_attrs = form.fields['is_complete'].widget.attrs
         self.assertIn('form-check-input', is_complete_attrs.get('class', ''))

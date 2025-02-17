@@ -9,25 +9,36 @@ User = get_user_model()
 
 class InStakeholdersFilterTest(TestCase):
     def setUp(self):
-        # Create two users: one will be the project owner, one will be a stakeholder.
+        # Create three users:
+        # - self.owner: The project owner.
+        # - self.stakeholder_user: A user who will be added as a stakeholder.
+        # - self.other_user: An extra user for testing purposes.
         self.owner = User.objects.create_user(username="owner", password="secret")
         self.stakeholder_user = User.objects.create_user(username="stakeholder", password="secret")
         self.other_user = User.objects.create_user(username="other", password="secret")
 
-        # Create a project with the owner.
+        # Create a project owned by self.owner.
+        # Note: Be sure to provide any required fields (like start_date and end_date)
+        # if they're mandatory in your Project model.
         self.project = Project.objects.create(
             name="Test Project",
             owner=self.owner,
-            # Add other required fields as needed.
+            start_date="2023-01-01",  # example values if required
+            end_date="2023-12-31",  # example values if required
+            description="A project for testing purposes.",
+            status=Project.Status.IN_PROGRESS,
+            is_public=True,
         )
 
-        # Create a Contact for the owner referencing the stakeholder user.
+        # Create a Contact that represents the stakeholder relationship.
+        # This contact is created for the owner, referencing the stakeholder_user.
         self.contact = Contact.objects.create(
             user=self.owner,
             contact_user=self.stakeholder_user,
             phone="1234567890",
             note="Test note"
         )
+
         # Add this contact to the project's stakeholders.
         self.project.stakeholders.add(self.contact)
 
