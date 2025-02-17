@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - ProjectPro{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, rgba(0, 123, 255, 0.8), rgba(0, 183, 255, 0.8)),
+            url('https://picsum.photos/id/1018/1200/600') no-repeat center center/cover;
+            min-height: 60vh;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 700px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero-section d-flex">
+        <div class="container hero-content">
+            <h1 class="display-3 fw-bold">Welcome to ProjectPro</h1>
+            <p class="lead">
+                Manage your projects, connect with your team, and streamline your workflow — all in one place.
+            </p>
+            <a href="{% url 'project_list' %}" class="btn btn-lg btn-light mt-4">
+                <i class="bi bi-arrow-right-circle"></i> Get Started
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Our Awesome Features</h2>
+            <div class="row text-center">
+                <div class="col-md-4 mb-4">
+                    <i class="bi bi-person-circle" style="font-size:3rem;"></i>
+                    <h4 class="mt-3">User Management</h4>
+                    <p class="mb-0">
+                        Easily register, log in, and update your profile, keeping you in control of your account.
+                    </p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <i class="bi bi-folder2-open" style="font-size:3rem;"></i>
+                    <h4 class="mt-3">Project Management</h4>
+                    <p class="mb-0">
+                        Create, edit, and organize projects with a user-friendly interface designed for efficiency.
+                    </p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <i class="bi bi-chat-left-text" style="font-size:3rem;"></i>
+                    <h4 class="mt-3">Messaging & Collaboration</h4>
+                    <p class="mb-0">
+                        Send and receive messages securely to stay connected with your team at all times.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About / Extra Info (Optional) -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-4">Why Choose My Project?</h2>
+            <p class="text-center">
+                Our platform leverages modern HTML, CSS, and JavaScript with a robust Django backend, ensuring a
+                secure and responsive experience across all devices. Join now and watch your productivity soar.
+            </p>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 text-center">
+        <div class="container">
+            <h2>Ready to Get Started?</h2>
+            <p class="lead">Dive into your projects and take control of your workflow today.</p>
+            <a href="{% url 'project_list' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-arrow-right-circle-fill"></i> Explore Projects
+            </a>
+        </div>
+    </section>
+{% endblock %}

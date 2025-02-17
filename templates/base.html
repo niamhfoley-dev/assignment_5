@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}ProjectPro{% endblock %}</title>
+
+    <!-- Bootstrap CSS (v5.3) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <!-- Brand / Logo -->
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <i class="bi bi-bootstrap-fill me-2" style="font-size:1.4rem;"></i>
+            ProjectPro
+        </a>
+
+        <!-- Navbar Toggler (Mobile) -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Collapse -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+            <!-- Left-aligned Nav Items -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% if user.is_authenticated %}
+                    <!-- Projects -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'project_list' %}">
+                            <i class="bi bi-folder2-open"></i> Projects
+                        </a>
+                    </li>
+                    <!-- Inbox with badge if unread messages exist -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'inbox' %}" style="position: relative;">
+                            <i class="bi bi-inbox-fill"></i> Inbox
+                            {% if unread_messages_count > 0 %}
+                                <span class="badge badge-custom rounded-pill bg-danger">
+                                  {{ unread_messages_count }}
+                                  <span class="visually-hidden">unread messages</span>
+                                </span>
+                            {% endif %}
+                        </a>
+                    </li>
+
+                    <!-- Contacts -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'contacts:contact_list' %}">
+                            <i class="bi bi-people-fill"></i> Contacts
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <!-- Right-aligned Nav Items (Authentication) -->
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                {% if user.is_authenticated %}
+                    <!-- Profile -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'profile' %}">
+                            <i class="bi bi-person-fill"></i> Profile
+                        </a>
+                    </li>
+                    <!-- Logout -->
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-light ms-2">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <!-- Login -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    </li>
+                    <!-- Register -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">
+                            <i class="bi bi-person-plus-fill"></i> Register
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main content -->
+<main class="container mt-4 min-vh-100">
+    {% block content %}
+        <!-- Page-specific content goes here -->
+    {% endblock %}
+</main>
+
+<footer class="footer mt-auto py-3 bg-dark text-light">
+    <div class="container d-flex flex-column flex-lg-row justify-content-lg-between align-items-center">
+        <div class="mb-3 mb-lg-0">
+            <span class="text-muted">&copy; {% now "Y" %} My Project | All rights reserved.</span>
+        </div>
+        <!-- Social media icons row -->
+        <div>
+            <a href="https://twitter.com" class="text-light me-3" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-twitter" style="font-size:1.25rem;"></i>
+            </a>
+            <a href="https://facebook.com" class="text-light me-3" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-facebook" style="font-size:1.25rem;"></i>
+            </a>
+            <a href="https://www.linkedin.com" class="text-light me-3" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-linkedin" style="font-size:1.25rem;"></i>
+            </a>
+            <a href="https://github.com" class="text-light" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-github" style="font-size:1.25rem;"></i>
+            </a>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap Bundle with Popper (v5.3) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery (required by Select2) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

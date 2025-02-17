@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Message Detail - My Project{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="card shadow rounded">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-envelope-fill me-2"></i>Message Detail
+                </h4>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ message.subject }}</h5>
+                {% if request.user == message.recipient %}
+                    <p class="text-muted mb-1">
+                        <strong>From:</strong> <i class="bi bi-person-fill"></i> {{ message.sender.username }}
+                    </p>
+                    <p class="text-muted">
+                        <strong>Received:</strong> {{ message.timestamp|date:"Y-m-d H:i" }}
+                    </p>
+                {% elif request.user == message.sender %}
+                    <p class="text-muted mb-1">
+                        <strong>To:</strong> <i class="bi bi-person-fill"></i> {{ message.recipient.username }}
+                    </p>
+                    <p class="text-muted">
+                        <strong>Sent:</strong> {{ message.timestamp|date:"Y-m-d H:i" }}
+                    </p>
+                {% endif %}
+                <hr>
+                <div class="card-text">
+                        {{ message.body|urlize|linebreaks }}
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                {% if request.user == message.recipient %}
+                    <a href="{% url 'inbox' %}" class="btn btn-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Back to Inbox
+                    </a>
+                {% elif request.user == message.sender %}
+                    <a href="{% url 'sent_messages' %}" class="btn btn-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Back to Sent Messages
+                    </a>
+                {% endif %}
+                {% if not message.is_archived %}
+                    <form action="{% url 'archive_message' message.id %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-archive"></i> Archive
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+            {% if request.user == message.recipient %}
+                <div class="card-body border-top">
+                    <h5 class="mb-3"><i class="bi bi-reply-fill me-1"></i>Reply</h5>
+                    <form method="post" action="{% url 'reply_message' message.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_subject" class="form-label">Subject</label>
+                            <input type="text" name="subject" id="id_subject" class="form-control" value="Re: {{ message.subject }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_body" class="form-label">Message</label>
+                            <textarea name="body" id="id_body" class="form-control" rows="5"
+                                      placeholder="Type your reply here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-send-fill"></i> Send Reply
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

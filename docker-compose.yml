@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: my_django_user
+      POSTGRES_PASSWORD: my_secure_password
+      POSTGRES_DB: my_django_app
+    ports:
+      - "5433:5432"  # Maps PostgreSQL port to localhost
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persist data in a named volume
+
+volumes:
+  postgres_data:

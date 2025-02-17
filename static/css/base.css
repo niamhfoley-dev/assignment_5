@@ -1,0 +1,71 @@
+/* base.css */
+
+/* Color variables (feel free to change to your branding) */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #18bc9c;
+    --light-bg-color: #ecf0f1;
+    --dark-text-color: #2c3e50;
+}
+
+/* Global styles */
+body {
+    background-color: var(--light-bg-color);
+    color: var(--dark-text-color);
+    font-family: 'Open Sans', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Custom badge positioning for the notification */
+.badge-custom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transform: translate(20%, -35%);
+    font-size: 0.65rem;
+    padding: 0.2em 0.5em;
+}
+
+/* Navbar modifications */
+.navbar {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Customize link colors in the navbar */
+.nav-link {
+    color: var(--light-bg-color) !important;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: var(--accent-color) !important;
+}
+
+.project-tab {
+    color: var(--dark-text-color) !important;
+}
+
+/* Primary buttons */
+.btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #128f76; /* Slightly darker accent */
+    border-color: #128f76;
+}
+
+/* Footer styling */
+.footer {
+    background-color: #fff;
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.footer .text-muted {
+    color: var(--light-bg-color) !important;
+}

@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %} {# For date formatting like naturaltime if desired #}
+{% load projects_extras %}
+
+{% block title %}{{ project.name }} - Project Details{% endblock %}
+
+{% block extra_css %}
+    <!-- (Optional) Bootstrap Icons if not already included globally -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+{% endblock %}
+
+{% block content %}
+    {% now "localtime" as today %}
+    <div class="container mt-4">
+
+        <!-- Check if project is nearing deadline (e.g., end_date within 7 days) -->
+        {% if project.end_date|date:"U" <= today|date:"U"|add:"604800" and project.end_date|date:"U" >= today|date:"U" %}
+            <div class="alert alert-warning text-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Heads up!</strong> This project is nearing its end date. Please review tasks and updates carefully.
+            </div>
+        {% elif project.end_date|date:"U" < today|date:"U" %}
+            <div class="alert alert-danger text-center" role="alert">
+                <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                <strong>Alert!</strong> This project’s end date has passed.
+            </div>
+        {% endif %}
+
+        <!-- Header: Project Name + Quick Action Buttons -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0">
+                <i class="bi bi-folder2-open"></i> {{ project.name }}
+                {% if project.status %}
+                    {% if project.status == "COMPLETED" %}
+                        <span class="badge bg-success ms-2">{{ project.get_status_display }}</span>
+                    {% elif project.status == "IN_PROGRESS" %}
+                        <span class="badge bg-info text-dark ms-2">{{ project.get_status_display }}</span>
+                    {% elif project.status == "ON_HOLD" %}
+                        <span class="badge bg-warning text-dark ms-2">{{ project.get_status_display }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary ms-2">{{ project.get_status_display }}</span>
+                    {% endif %}
+                {% endif %}
+            </h2>
+
+            <div>
+                <a href="{% url 'project_edit' project.pk %}" class="btn btn-sm btn-secondary me-1">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </a>
+                <a href="{% url 'project_delete' project.pk %}" class="btn btn-sm btn-danger me-1">
+                    <i class="bi bi-trash"></i> Delete
+                </a>
+                <a href="{% url 'project_list' %}" class="btn btn-sm btn-link">
+                    <i class="bi bi-arrow-left"></i> Projects
+                </a>
+            </div>
+        </div>
+
+        <!-- Main card with Tabs -->
+        <div class="card shadow">
+            <div class="card-body">
+
+                <!-- Bootstrap Nav Tabs -->
+                <ul class="nav nav-tabs" id="projectTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link project-tab active" id="overview-tab" data-bs-toggle="tab"
+                                data-bs-target="#overview-pane" type="button"
+                                role="tab" aria-controls="overview-pane" aria-selected="true">
+                            Overview
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link project-tab" id="tasks-tab" data-bs-toggle="tab"
+                                data-bs-target="#tasks-pane" type="button"
+                                role="tab" aria-controls="tasks-pane" aria-selected="false">
+                            Timeline / Tasks
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link project-tab" id="activity-tab" data-bs-toggle="tab"
+                                data-bs-target="#activity-pane" type="button"
+                                role="tab" aria-controls="activity-pane" aria-selected="false">
+                            Activity
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link project-tab" id="stakeholders-tab" data-bs-toggle="tab"
+                                data-bs-target="#stakeholders-pane" type="button"
+                                role="tab" aria-controls="stakeholders-pane" aria-selected="false">
+                            Stakeholders
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content py-3" id="projectTabsContent">
+
+                    <!-- Overview Tab -->
+                    <div class="tab-pane fade show active" id="overview-pane" role="tabpanel"
+                         aria-labelledby="overview-tab">
+                        {% comment %} Basic project info {% endcomment %}
+                        {% if project.owner %}
+                            <p><strong>Owner:</strong>
+                                {{ project.owner.get_full_name|default:project.owner.username }}
+                            </p>
+                        {% endif %}
+                        {% if project.description %}
+                            <p><strong>Description:</strong> {{ project.description }}</p>
+                        {% endif %}
+                        <p><strong>Start Date:</strong> {{ project.start_date|date:"Y-m-d" }}</p>
+                        <p><strong>End Date:</strong> {{ project.end_date|date:"Y-m-d" }}</p>
+
+                        <!-- Optional progress bar if you track numeric progress -->
+                        {% if project.progress %}
+                            <label><strong>Completion:</strong></label>
+                            <div class="progress" style="height: 24px;">
+                                <div class="progress-bar" role="progressbar"
+                                     style="width: {{ project.progress }}%;"
+                                     aria-valuenow="{{ project.progress }}" aria-valuemin="0"
+                                     aria-valuemax="100">
+                                    {{ project.progress }}%
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if project.owner != request.user and not request.user|in_stakeholders:project %}
+                            <form action="{% url 'request_join_project' project.pk %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-person-plus"></i> Request to Join
+                                </button>
+                            </form>
+                        {% endif %}
+                        {% if request.user != project.owner and request.user|in_stakeholders:project %}
+                            <form method="post" action="{% url 'leave_project' project.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="bi bi-box-arrow-right"></i> Leave Project
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tasks / Timeline Tab -->
+                    <div class="tab-pane fade" id="tasks-pane" role="tabpanel"
+                         aria-labelledby="tasks-tab">
+                        {% comment %} If you pass a list of tasks in the context, display them in a table or timeline {% endcomment %}
+                        <h5>Project Tasks / Timeline</h5>
+                        <!-- tasks-pane -->
+                        {% if task_list %}
+                            <table class="table table-striped table-hover">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Assigned To</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th style="width:15%;">Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for task in task_list %}
+                                    <tr>
+                                        <td>{{ task.title }}</td>
+                                        <td>
+                                            {% for contact in task.assigned_to.all %}
+                                                <span class="badge bg-secondary">{{ contact.name }}</span>
+                                            {% empty %}
+                                                <span class="text-muted">None</span>
+                                            {% endfor %}
+                                        </td>
+                                        <td>{{ task.due_date|date:"Y-m-d" }}</td>
+                                        <td>
+                                            {% if task.is_complete %}
+                                                <span class="badge bg-success">Complete</span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <!-- Possibly show Edit button only for owners/stakeholders who can manage tasks -->
+                                            <a href="{% url 'tasks_edit' task.pk %}" class="btn btn-sm btn-secondary">
+                                                <i class="bi bi-pencil-square"></i> Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                No tasks or milestones found.
+                            </div>
+                        {% endif %}
+                        <!-- Add a "Create Task" button if you want, e.g.: -->
+                        <a href="{% url 'tasks_create' project.pk %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle"></i> Add Task
+                        </a>
+                    </div>
+
+                    <!-- Activity Tab -->
+                    <div class="tab-pane fade" id="activity-pane" role="tabpanel"
+                         aria-labelledby="activity-tab">
+                        <h5>Recent Activity</h5>
+                        {% if activity_list %}
+                            <ul class="list-group">
+                                {% for activity in activity_list %}
+                                    <li class="list-group-item">
+                                        <small class="text-muted float-end">
+                                            {{ activity.timestamp|date:"Y-m-d H:i" }}
+                                        </small>
+                                        <p class="mb-1"><strong>{{ activity.title }}</strong></p>
+                                        <p class="mb-0">{{ activity.description }}</p>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                No recent activity to display.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Stakeholders Tab -->
+                    <div class="tab-pane fade" id="stakeholders-pane" role="tabpanel"
+                         aria-labelledby="stakeholders-tab">
+                        <h5>Stakeholders</h5>
+                        <ul class="list-group">
+                            {% for contact in project.stakeholders.all %}
+                                <li class="list-group-item d-flex align-items-center">
+                                    <i class="bi bi-person-circle me-2"></i>
+                                    <div>
+                                        <strong>{{ contact.contact_user.username }}</strong> <br>
+                                        <small class="text-muted">{{ contact.contact_user.email }}</small>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% if not project.stakeholders.all %}
+                            <div class="alert alert-info mt-2">No stakeholders assigned.</div>
+                        {% endif %}
+
+                        {% if project.owner == request.user %}
+                            <!-- Pending Requests -->
+                            <hr>
+                            <h5>Join Requests</h5>
+                            {% if project.join_requests.all %}
+                                <ul class="list-group">
+                                    {% for jr in project.join_requests.all %}
+                                        {% if jr.status == 'PENDING' %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>
+                                                  {{ jr.requesting_user.username }} ({{ jr.created_at|date:"Y-m-d H:i" }})
+                                                </span>
+                                                <span>
+                                                  <form action="{% url 'accept_join_request' jr.pk %}" method="post" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-success btn-sm">
+                                                      <i class="bi bi-check-circle"></i> Accept
+                                                    </button>
+                                                  </form>
+                                                  <form action="{% url 'reject_join_request' jr.pk %}" method="post" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-danger btn-sm">
+                                                      <i class="bi bi-x-circle"></i> Reject
+                                                    </button>
+                                                  </form>
+                                                </span>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <div class="alert alert-info mt-2">No join requests.</div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                </div> <!-- /.tab-content -->
+
+            </div> <!-- /.card-body -->
+        </div><!-- /card -->
+    </div><!-- /container -->
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Initialize the first tab as active on page load if needed
+        document.addEventListener('DOMContentLoaded', function () {
+            const firstTabTrigger = document.querySelector('#overview-tab');
+            if (firstTabTrigger) {
+                const tab = new bootstrap.Tab(firstTabTrigger);
+                tab.show();
+            }
+        });
+    </script>
+{% endblock %}
