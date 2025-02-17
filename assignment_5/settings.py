@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+
+import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,8 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DJANGO_ENV = os.getenv('DJANGO_ENV', 'development')
 
 if DJANGO_ENV == 'development':
-    print("DJANGO_ENV is set to 'development'")
-    print(os.getenv("DEBUG", "False"))
     # Load environment variables from .env only in development.
     load_dotenv(os.path.join(BASE_DIR, 'dev.env'))
 
@@ -85,14 +85,7 @@ WSGI_APPLICATION = 'assignment_5.wsgi.application'
 
 # Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("DATABASE_NAME", "my_django_app"),
-        'USER': os.getenv("DATABASE_USER", "my_django_user"),
-        'PASSWORD': os.getenv("DATABASE_PASSWORD", "my_secure_password"),
-        'HOST': os.getenv("DATABASE_HOST", "localhost"),
-        'PORT': os.getenv("DATABASE_PORT", "5433"),
-    }
+    'default': dj_database_url.config(default=os.getenv("DATABASE_URL"))
 }
 
 # Password validation
