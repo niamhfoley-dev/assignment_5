@@ -2,3 +2,4 @@
 .idea
 dev.env
 production.env
+/staticfiles
