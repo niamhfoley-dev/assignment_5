@@ -138,13 +138,6 @@ class ProjectDeleteView(LoginRequiredMixin, DeleteView):
         self.object = self.get_object()
         confirm_name = request.POST.get('confirmName', '')
         if confirm_name == self.object.name:
-            # Log activity before the project is deleted.
-            ProjectActivity.objects.create(
-                project=self.object,
-                title="Project Deleted",
-                description=f"{request.user.username} deleted this project.",
-                created_by=request.user
-            )
             messages.success(request, "Project successfully deleted.")
             return super().post(request, *args, **kwargs)
         else:
