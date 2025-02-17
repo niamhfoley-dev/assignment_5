@@ -1,3 +1,4 @@
 /docs
 .idea
-.env
+dev.env
+production.env
