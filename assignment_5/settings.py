@@ -32,6 +32,9 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
+print(DEBUG)
+
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:8000")
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
@@ -85,10 +88,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'assignment_5.wsgi.application'
 
-# Database
 DATABASES = {
     'default': dj_database_url.config(default=os.getenv("DATABASE_URL"))
 }
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
